@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #  'accounts',
+     'acounts',
      'rest_framework',
      "corsheaders",
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -141,4 +142,4 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
-AUTH_USER_MODEL ='acounts.UserAccount'
+AUTH_USER_MODEL = 'acounts.UserAcount'
