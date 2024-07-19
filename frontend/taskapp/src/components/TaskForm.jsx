@@ -5,7 +5,7 @@ import { Form, Button } from "react-bootstrap";
 const TaskForm = ({ taskId, onSuccess }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("");
+  const [priority, setPriority] = useState("Medium");
   const [dueDate, setDueDate] = useState("");
   const [completed, setCompleted] = useState(false);
 
@@ -28,14 +28,19 @@ const TaskForm = ({ taskId, onSuccess }) => {
 
   useEffect(() => {
     if (taskId) {
-      api.get(`/tasks/${taskId}/`).then((response) => {
-        const task = response.data;
-        setTitle(task.title);
-        setDescription(task.description);
-        setPriority(task.priority);
-        setDueDate(task.due_date);
-        setCompleted(task.completed);
-      });
+      api
+        .get(`/tasks/${taskId}/`)
+        .then((response) => {
+          const task = response.data;
+          setTitle(task.title);
+          setDescription(task.description);
+          setPriority(task.priority);
+          setDueDate(task.due_date);
+          setCompleted(task.completed);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, [taskId]);
 
@@ -49,15 +54,17 @@ const TaskForm = ({ taskId, onSuccess }) => {
       completed,
     };
 
-    if (taskId) {
-      api.put(`/tasks/${taskId}/`, taskData).then(() => {
+    const apiCall = taskId
+      ? api.put(`/tasks/${taskId}/`, taskData)
+      : api.post("/tasks/", taskData);
+
+    apiCall
+      .then(() => {
         onSuccess();
+      })
+      .catch((err) => {
+        console.error(err);
       });
-    } else {
-      api.post("/tasks/", taskData).then(() => {
-        onSuccess();
-      });
-    }
   };
 
   return (
@@ -74,7 +81,7 @@ const TaskForm = ({ taskId, onSuccess }) => {
       <Form.Group controlId="description">
         <Form.Label>Description</Form.Label>
         <Form.Control
-          type="text"
+          as="textarea"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
@@ -83,13 +90,17 @@ const TaskForm = ({ taskId, onSuccess }) => {
       <Form.Group controlId="priority">
         <Form.Label>Priority</Form.Label>
         <Form.Control
-          type="text"
+          as="select"
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
           required
-        />
+        >
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </Form.Control>
       </Form.Group>
-      <Form.Group controlId="due_date">
+      <Form.Group controlId="dueDate">
         <Form.Label>Due Date</Form.Label>
         <Form.Control
           type="date"
@@ -107,7 +118,7 @@ const TaskForm = ({ taskId, onSuccess }) => {
         />
       </Form.Group>
       <Button variant="primary" type="submit">
-        Save Task
+        {taskId ? "Update Task" : "Create Task"}
       </Button>
     </Form>
   );
