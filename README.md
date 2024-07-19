@@ -67,6 +67,7 @@ You can create, update, view, and delete tasks.
 Project Structure
 markdown
 
+```plaintext
 TASKMANAGER/
 │
 ├── backend/
@@ -110,5 +111,6 @@ TASKMANAGER/
     │   └── api.js
     ├── package.json
     └── README.md
+
 Contributing
 Contributions are welcome to improve the app! Please feel free to submit a Pull Request.
