@@ -13,17 +13,18 @@ const TaskList = () => {
     baseURL: "http://localhost:8000/api",
   });
 
+
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        console.warn("No token found in localStorage.");
       }
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
   useEffect(() => {
@@ -38,7 +39,10 @@ const TaskList = () => {
         setError("");
       })
       .catch((err) => {
-        console.error("Failed to load tasks:", err);
+        console.error(
+          "Failed to load tasks:",
+          err.response ? err.response.data : err.message
+        );
         setError("Failed to load tasks.");
       });
   };
@@ -55,18 +59,21 @@ const TaskList = () => {
         setNotification("Task deleted successfully.");
       })
       .catch((err) => {
-        console.error("Failed to delete task:", err);
+        console.error(
+          "Failed to delete task:",
+          err.response ? err.response.data : err.message
+        );
         setError("Failed to delete task. Please try again.");
       });
   };
 
   const handleSuccess = () => {
-    fetchTasks(); // Refresh the list after creation or update
+    fetchTasks(); 
     setEditingTask(null);
   };
 
   const handleFailure = () => {
-    // Optionally handle failure if needed
+   
   };
 
   return (
@@ -92,7 +99,10 @@ const TaskList = () => {
                   <p>Priority: {task.priority}</p>
                   <p>Due Date: {task.due_date}</p>
                   <p>
-                    Status: {task.completed ? "Completed" : "Not Completed"}
+                    Status:{" "}
+                    {task.completed === "completed"
+                      ? "Completed"
+                      : "Not Completed"}
                   </p>
                   <Button variant="warning" onClick={() => handleEdit(task)}>
                     Edit

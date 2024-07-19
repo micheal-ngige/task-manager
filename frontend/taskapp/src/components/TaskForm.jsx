@@ -5,26 +5,27 @@ import { Form, Button, Alert } from "react-bootstrap";
 const TaskForm = ({ taskId, onSuccess, onFailure }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("Medium");
+  const [priority, setPriority] = useState("medium");
   const [dueDate, setDueDate] = useState("");
-  const [completed, setCompleted] = useState(false);
-  const [message, setMessage] = useState(""); // For displaying messages
+  const [completed, setCompleted] = useState("not_completed");
+  const [message, setMessage] = useState("");
 
   const api = axios.create({
     baseURL: "http://localhost:8000/api",
   });
 
+  
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        console.warn("No token found in localStorage.");
       }
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
   useEffect(() => {
@@ -40,7 +41,10 @@ const TaskForm = ({ taskId, onSuccess, onFailure }) => {
           setCompleted(task.completed);
         })
         .catch((err) => {
-          console.error(err);
+          console.error(
+            "Failed to fetch task:",
+            err.response ? err.response.data : err.message
+          );
         });
     }
   }, [taskId]);
@@ -52,7 +56,7 @@ const TaskForm = ({ taskId, onSuccess, onFailure }) => {
       description,
       priority,
       due_date: dueDate,
-      completed, // Boolean value
+      completed,
     };
 
     const apiCall = taskId
@@ -64,12 +68,15 @@ const TaskForm = ({ taskId, onSuccess, onFailure }) => {
         setMessage(
           taskId ? "Task updated successfully." : "Task created successfully."
         );
-        onSuccess(); // Notify parent component of success
+        onSuccess();
       })
       .catch((err) => {
-        console.error(err);
+        console.error(
+          "Failed to submit task:",
+          err.response ? err.response.data : err.message
+        );
         setMessage("Failed to submit task. Please try again.");
-        onFailure(); // Notify parent component of failure if needed
+        onFailure();
       });
   };
 
@@ -107,9 +114,9 @@ const TaskForm = ({ taskId, onSuccess, onFailure }) => {
             onChange={(e) => setPriority(e.target.value)}
             required
           >
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
           </Form.Control>
         </Form.Group>
         <Form.Group controlId="dueDate">
@@ -125,11 +132,11 @@ const TaskForm = ({ taskId, onSuccess, onFailure }) => {
           <Form.Label>Status</Form.Label>
           <Form.Control
             as="select"
-            value={completed ? "Completed" : "Not Completed"}
-            onChange={(e) => setCompleted(e.target.value === "Completed")}
+            value={completed}
+            onChange={(e) => setCompleted(e.target.value)}
           >
-            <option value="Not Completed">Not Completed</option>
-            <option value="Completed">Completed</option>
+            <option value="not_completed">Not Completed</option>
+            <option value="completed">Completed</option>
           </Form.Control>
         </Form.Group>
         <Button variant="primary" type="submit">

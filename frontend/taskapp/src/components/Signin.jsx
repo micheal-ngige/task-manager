@@ -13,10 +13,16 @@ const SignIn = ({ onSuccess }) => {
     axios
       .post("http://localhost:8000/api/token/", { email, password })
       .then((response) => {
-        localStorage.setItem("token", response.data.access); 
+        const token = response.data.access;
+        localStorage.setItem("token", token); 
         onSuccess();
       })
-      .catch((err) => console.error(err));
+      .catch((err) =>
+        console.error(
+          "Sign-in failed:",
+          err.response ? err.response.data : err.message
+        )
+      );
   };
 
   return (
