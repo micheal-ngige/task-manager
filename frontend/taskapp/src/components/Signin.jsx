@@ -13,7 +13,7 @@ const SignIn = ({ onSuccess }) => {
     axios
       .post("http://localhost:8000/api/token/", { email, password })
       .then((response) => {
-        localStorage.setItem("token", response.data.access); // Save the token
+        localStorage.setItem("token", response.data.access); 
         onSuccess();
       })
       .catch((err) => console.error(err));

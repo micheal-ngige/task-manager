@@ -9,11 +9,11 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   const handleSignInSuccess = () => {
-    navigate("/tasks"); // Redirect to the task page after successful sign-in
+    navigate("/tasks");
   };
 
   const handleSignUpSuccess = () => {
-    setIsSignIn(true); // Navigate to the sign-in page after successful sign-up
+    setIsSignIn(true); 
   };
 
   return (

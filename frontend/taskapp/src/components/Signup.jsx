@@ -18,7 +18,7 @@ const SignUp = ({ onSuccess }) => {
         password2,
       })
       .then(() => {
-        onSuccess(); // Redirect to sign-in page after successful sign-up
+        onSuccess(); 
       })
       .catch((err) => console.error(err));
   };
