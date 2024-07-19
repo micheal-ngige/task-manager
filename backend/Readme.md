@@ -17,54 +17,48 @@ Installation
 Backend (Django)
 Clone the repository by:
 
-Copy code on the github
+copy code on the github
 git clone https://github.com/micheal-ngige/task-manager
 cd task-management-tool/backend
 Create and activate a virtual environment:
 
  terminal
-Copy code
+copy code
 python3 -m venv venv
 source venv/bin/activate 
 Install dependencies:
 
 terminal
-Copy code
 pip install -r requirements.txt
 Run migrations:
 
 terminal
-Copy code
 python manage.py migrate
 Start the development server:
 
 terminal
-Copy code
 python manage.py runserver
 Frontend (React)
 Navigate to the frontend directory:
 
 terminal
-Copy code
 cd ../frontend
 Install dependencies:
 
 terminal
-Copy code
 npm install
 Start the development server:
 
 terminal
-Copy code
-npm start
+npm run dev
 Usage
 Sign Up:
 
-Navigate to the signup page at http://localhost:3000/signup.
+Navigate to the signup page at http://localhost:5173/auth.
 Fill out the registration form and submit.
 Sign In:
 
-Navigate to the sign-in page at http://localhost:3000/signin.
+Navigate to the sign-in page at http://localhost:5173/auth.
 Enter your credentials and submit.
 Manage Tasks:
 
@@ -72,8 +66,8 @@ After signing in, you will be redirected to the task management page.
 You can create, update, view, and delete tasks.
 Project Structure
 markdown
-Copy code
-task-management-tool/
+
+TASKMANAGER/
 │
 ├── backend/
 │   ├── accounts/
@@ -106,6 +100,9 @@ task-management-tool/
     ├── public/
     ├── src/
     │   ├── components/
+    │   │   ├── AuthPage.jsx
+    │   │   ├── SignIn.jsx
+    │   │   ├── SignUp.jsx
     │   │   ├── TaskForm.jsx
     │   │   └── TaskList.jsx
     │   ├── App.jsx
@@ -114,7 +111,4 @@ task-management-tool/
     ├── package.json
     └── README.md
 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+Contributions are welcome to improve the app! Please feel free to submit a Pull Request.
