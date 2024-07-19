@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "axios"; // Import Axios directly
 import { ListGroup, Button, Alert } from "react-bootstrap";
 import TaskForm from "./TaskForm";
 
@@ -9,16 +9,33 @@ const TaskList = () => {
   const [notification, setNotification] = useState("");
   const [error, setError] = useState("");
 
+  const api = axios.create({
+    baseURL: "http://localhost:8000/api",
+  });
+
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = () => {
-    axios
-      .get("http://localhost:8000/api/tasks")
+    api
+      .get("/tasks/")
       .then((response) => {
-        console.log(response);
         setTasks(response.data);
+        setError("");
       })
       .catch((err) => {
         console.error(err);
@@ -31,8 +48,8 @@ const TaskList = () => {
   };
 
   const handleDelete = (taskId) => {
-    axios
-      .delete(`http://localhost:8000/api/tasks/${taskId}/`)
+    api
+      .delete(`/tasks/${taskId}/`)
       .then(() => {
         fetchTasks();
         setNotification("Task deleted successfully.");

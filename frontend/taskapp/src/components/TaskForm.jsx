@@ -1,75 +1,116 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { ListGroup, Button, Alert } from "react-bootstrap";
-import TaskForm from "./TaskForm";
+import axios from "axios"; // Import Axios directly
+import { Form, Button } from "react-bootstrap";
 
-const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [editingTask, setEditingTask] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+const TaskForm = ({ taskId, onSuccess }) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [completed, setCompleted] = useState(false);
+
+  const api = axios.create({
+    baseURL: "http://localhost:8000/api",
+  });
+
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/tasks/")
-      .then((response) => {
-        setTasks(response.data);
-        setError("");
-      })
-      .catch(() => setError("Failed to load tasks."));
-  }, [success]); // Re-fetch tasks when success changes
+    if (taskId) {
+      api.get(`/tasks/${taskId}/`).then((response) => {
+        const task = response.data;
+        setTitle(task.title);
+        setDescription(task.description);
+        setPriority(task.priority);
+        setDueDate(task.due_date);
+        setCompleted(task.completed);
+      });
+    }
+  }, [taskId]);
 
-  const handleEdit = (task) => {
-    setEditingTask(task);
-  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const taskData = {
+      title,
+      description,
+      priority,
+      due_date: dueDate,
+      completed,
+    };
 
-  const handleDelete = (taskId) => {
-    axios
-      .delete(`http://localhost:8000/api/tasks/${taskId}/`)
-      .then(() => {
-        setSuccess("Task deleted successfully!");
-        setError("");
-        setTasks(tasks.filter((task) => task.id !== taskId));
-      })
-      .catch(() => setError("Failed to delete task."));
-  };
-
-  const handleSuccess = () => {
-    setEditingTask(null);
-    setSuccess("Task saved successfully!");
+    if (taskId) {
+      api.put(`/tasks/${taskId}/`, taskData).then(() => {
+        onSuccess();
+      });
+    } else {
+      api.post("/tasks/", taskData).then(() => {
+        onSuccess();
+      });
+    }
   };
 
   return (
-    <div>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-      <h2>Task List</h2>
-      {editingTask ? (
-        <TaskForm taskId={editingTask.id} onSuccess={handleSuccess} />
-      ) : (
-        <>
-          <TaskForm onSuccess={handleSuccess} />
-          <ListGroup>
-            {tasks.map((task) => (
-              <ListGroup.Item key={task.id}>
-                <h5>{task.title}</h5>
-                <p>{task.description}</p>
-                <p>Priority: {task.priority}</p>
-                <p>Due Date: {task.due_date}</p>
-                <p>Status: {task.completed ? "Completed" : "Not Completed"}</p>
-                <Button variant="warning" onClick={() => handleEdit(task)}>
-                  Edit
-                </Button>
-                <Button variant="danger" onClick={() => handleDelete(task.id)}>
-                  Delete
-                </Button>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </>
-      )}
-    </div>
+    <Form onSubmit={handleSubmit}>
+      <Form.Group controlId="title">
+        <Form.Label>Title</Form.Label>
+        <Form.Control
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+      </Form.Group>
+      <Form.Group controlId="description">
+        <Form.Label>Description</Form.Label>
+        <Form.Control
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </Form.Group>
+      <Form.Group controlId="priority">
+        <Form.Label>Priority</Form.Label>
+        <Form.Control
+          type="text"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          required
+        />
+      </Form.Group>
+      <Form.Group controlId="due_date">
+        <Form.Label>Due Date</Form.Label>
+        <Form.Control
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          required
+        />
+      </Form.Group>
+      <Form.Group controlId="completed">
+        <Form.Check
+          type="checkbox"
+          label="Completed"
+          checked={completed}
+          onChange={(e) => setCompleted(e.target.checked)}
+        />
+      </Form.Group>
+      <Button variant="primary" type="submit">
+        Save Task
+      </Button>
+    </Form>
   );
 };
 
-export default TaskList;
+export default TaskForm;

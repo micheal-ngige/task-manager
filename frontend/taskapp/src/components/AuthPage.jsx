@@ -12,6 +12,10 @@ const AuthPage = () => {
     navigate("/tasks"); // Redirect to the task page after successful sign-in
   };
 
+  const handleSignUpSuccess = () => {
+    setIsSignIn(true); // Navigate to the sign-in page after successful sign-up
+  };
+
   return (
     <Container className="mt-4">
       <Card>
@@ -30,7 +34,7 @@ const AuthPage = () => {
           ) : (
             <>
               <h2>Sign Up</h2>
-              <SignUp onSuccess={() => setIsSignIn(true)} />
+              <SignUp onSuccess={handleSignUpSuccess} />
               <p>
                 Already have an account?{" "}
                 <Button variant="link" onClick={() => setIsSignIn(true)}>
