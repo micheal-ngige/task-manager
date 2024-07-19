@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import { ListGroup, Button, Alert } from "react-bootstrap";
 import TaskForm from "./TaskForm";
 
@@ -38,7 +38,7 @@ const TaskList = () => {
         setError("");
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Failed to load tasks:", err);
         setError("Failed to load tasks.");
       });
   };
@@ -51,18 +51,22 @@ const TaskList = () => {
     api
       .delete(`/tasks/${taskId}/`)
       .then(() => {
-        fetchTasks();
+        fetchTasks(); // Refresh the list after deletion
         setNotification("Task deleted successfully.");
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Failed to delete task:", err);
         setError("Failed to delete task. Please try again.");
       });
   };
 
   const handleSuccess = () => {
-    fetchTasks();
+    fetchTasks(); // Refresh the list after creation or update
     setEditingTask(null);
+  };
+
+  const handleFailure = () => {
+    // Optionally handle failure if needed
   };
 
   return (
@@ -71,26 +75,39 @@ const TaskList = () => {
       {notification && <Alert variant="success">{notification}</Alert>}
       {error && <Alert variant="danger">{error}</Alert>}
       {editingTask ? (
-        <TaskForm taskId={editingTask.id} onSuccess={handleSuccess} />
+        <TaskForm
+          taskId={editingTask.id}
+          onSuccess={handleSuccess}
+          onFailure={handleFailure}
+        />
       ) : (
         <>
-          <TaskForm onSuccess={handleSuccess} />
+          <TaskForm onSuccess={handleSuccess} onFailure={handleFailure} />
           <ListGroup>
-            {tasks.map((task) => (
-              <ListGroup.Item key={task.id}>
-                <h5>{task.title}</h5>
-                <p>{task.description}</p>
-                <p>Priority: {task.priority}</p>
-                <p>Due Date: {task.due_date}</p>
-                <p>Status: {task.completed ? "Completed" : "Not Completed"}</p>
-                <Button variant="warning" onClick={() => handleEdit(task)}>
-                  Edit
-                </Button>
-                <Button variant="danger" onClick={() => handleDelete(task.id)}>
-                  Delete
-                </Button>
-              </ListGroup.Item>
-            ))}
+            {tasks.length > 0 ? (
+              tasks.map((task) => (
+                <ListGroup.Item key={task.id}>
+                  <h5>{task.title}</h5>
+                  <p>{task.description}</p>
+                  <p>Priority: {task.priority}</p>
+                  <p>Due Date: {task.due_date}</p>
+                  <p>
+                    Status: {task.completed ? "Completed" : "Not Completed"}
+                  </p>
+                  <Button variant="warning" onClick={() => handleEdit(task)}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    Delete
+                  </Button>
+                </ListGroup.Item>
+              ))
+            ) : (
+              <p>No tasks available.</p>
+            )}
           </ListGroup>
         </>
       )}
